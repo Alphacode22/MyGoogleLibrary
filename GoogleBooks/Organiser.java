@@ -142,17 +142,25 @@ public class Organiser {
 //        }
 
         //For each library in our libraries
-        for(int i =0; i < libraries.size(); i++){
-             
+        for(int i =0; i < libraries.size(); i++) {
+            HashMap<Integer, String> libraryBooks = libraries.get(i).bookObjects;
+            LinkedHashMap<String, String> sortedMap = new LinkedHashMap<>();
+            ArrayList<String> list = new ArrayList<>();
 
-
-
-
-
-
-
-
-
+            for (Map.Entry<Integer, String> entry : libraryBooks.entrySet()) {
+                list.add(entry.getValue());
+            }
+            //Here
+            Collections.sort(list, Collections.reverseOrder());
+            for (String str : list) {
+                for (Map.Entry<Integer, String> entry : libraryBooks.entrySet()) {
+                    if (entry.getValue().equals(str)) {
+                        sortedMap.put(String.valueOf(entry.getKey()), str);
+                    }
+                }
+            }
+            System.out.println(sortedMap);
+        }
 
 //            Library library = libraries.get(i);
 //            //For all the books in that library
@@ -169,8 +177,8 @@ public class Organiser {
 ////                if(Integer.parseInt(library.getBookObjects().get(j)) < Integer.parseInt(library.getBookObjects().get(j+1))){
 ////                    library.getBookObjects().get(j);
 ////                }
-            }
-        }
+
+        
 
 
 //         //For each library in our libraries
