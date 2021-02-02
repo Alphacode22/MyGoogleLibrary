@@ -2,14 +2,12 @@ package GoogleBooks;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 
 /*
 TODO: USE CONSTRAINTS!!!!!!!!!!!!!
-
-
+Pen and paper?
+Write very specific requirements
 
  */
 public class Organiser {
@@ -19,26 +17,30 @@ public class Organiser {
     public static int totalOfDays = 0;
     public static ArrayList<Library> libraries = new ArrayList<>();
 
-    public HashMap<Integer, String> book = new HashMap<>();
-    //public static ArrayList<Integer> bookScores = new ArrayList<>();
+    //Hash with booksID, Score
+    public static HashMap<Integer, String> books = new HashMap<>();//Change to class next time
 
     //Temporary Variable
-    public ArrayList<Integer> booksNo = new ArrayList<>();
-
-
+    private HashMap<Integer, String> booksThings = new HashMap<Integer, String>();
 
     public void parseInput(String fileName) throws FileNotFoundException {
 
+        if(fileName == null){
+            throw new FileNotFoundException("You are missing a file");
+        }
+
         File file = new File(fileName);
+
         // Read in what file
         Scanner scanner = new Scanner(file);
 
         int index = 0;//This will hold the line number
-        int mutex=0;
+        int mutex=0;//This is a lock
 
         //Need a new library to be created
 
         Library library = new Library();
+
         //While there is a next line in the file
         while (scanner.hasNextLine()) {
             //Hold each line
@@ -66,7 +68,7 @@ public class Organiser {
             //Line two 1 2 3 6 5 4
             else if (index == 1) {
                 for (int i = 0; i < numbers.length; i++) {
-                    book.put(i, numbers[i]);
+                    books.put(i+1, numbers[i]);
                 }
             }
             else {
@@ -88,13 +90,13 @@ public class Organiser {
                     mutex = 1;
                 } else {
                     //Empty bookArray
-                    booksNo = new ArrayList<Integer>();
+                    booksThings = new HashMap<Integer, String>();
 
                     //Line four 0 1 2 3 4
                     for (String number : numbers) {
-                        booksNo.add(Integer.parseInt(number));
+                        booksThings.put(Integer.parseInt(number)+1, "");
                     }
-                    library.setBookIDs(booksNo);
+                    library.setBookObjects(booksThings);
                     libraries.add(library);
                     //Make a new library
                     library = new Library();
@@ -103,9 +105,146 @@ public class Organiser {
             }
             index++;
             //System.out.println("");
+
+
         }
+
+        //Fill in the books in each library
+        //High difficulty
+        for (int i = 0; i < libraries.size(); i++) {
+            Library l = libraries.get(i);
+            for (Map.Entry<Integer, String> b : books.entrySet()) {
+                for (Map.Entry<Integer, String> bi : l.getBookObjects().entrySet()){
+                    if(bi.getKey().equals(b.getKey())){
+                        l.getBookObjects().put(bi.getKey(),b.getValue());
+                        if(i==1){
+                            System.out.println(b);
+                            System.out.println(bi);
+                        }
+                    }
+                }
+            }
+        }
+
+
+       // System.out.println("Hello");
+    }
+
+    public void sort(){
+
+        float totalDaysPassed =0; //For the number of days
+        int index=0;
+
+        //        for(int i =0; i < totalOfLibs; i++){
+//            for(int j=0; j < totalOfBooks; j++){
+//                if(libraries.get(i).getBookIDs())
+//            }
+//        }
+
+        //For each library in our libraries
+        for(int i =0; i < libraries.size(); i++){
+             
+
+
+
+
+
+
+
+
+
+
+//            Library library = libraries.get(i);
+//            //For all the books in that library
+//            for(int j=0; j < library.getNumOfBooks()-1; j++){
+
+
+
+
+
+
+//                //Map.Entry<Integer, String> temp;
+//                TreeMap<Integer, String> tm = new TreeMap<Integer, String>(library.getBookObjects());
+//                Iterator itr=tm.keySet().iterator();
+////                if(Integer.parseInt(library.getBookObjects().get(j)) < Integer.parseInt(library.getBookObjects().get(j+1))){
+////                    library.getBookObjects().get(j);
+////                }
+            }
+        }
+
+
+//         //For each library in our libraries
+//        for(int i =0; i < libraries.size(); i++){
+//            Library library = libraries.get(i);
+//            //For all the books in that library
+//            for(int j=0; j < library.getNumOfBooks(); j++){
+//            //For all the type of books available
+//                for(int k=0; k < totalOfBooks; k++){
+//                    //Use bubble sort
+//                    //If this library contains this book
+//
+//                }
+//            }
+//        }
+
+
+
+//        //For each library in our libraries
+//        for(int i =0; i < libraries.size(); i++){
+//            Library library = libraries.get(i);
+//            //For all the books in that library
+//            for(int j=0; j < library.numOfBooks; j++){
+//            //For all the type of books available
+//                for(int k=0; k < totalOfBooks; k++){
+//                    //Use bubble sort
+//                    //If this library contains this book
+//                    if(book.containsKey(library.getBookIDs().get(j))){
+//                       if()
+//                    }
+//                }
+//            }
+//        }
+
+
+
+
+//        //For all the library we have
+//        for(int h =0; h < libraries.size(); h++){
+//            for(int i =0; i < index; i++){
+//                Library library = libraries.get(i);
+//                totalDaysPassed += library.signUpDays;
+//
+//                //For all the books in that library
+//                for(int j=0; j < library.numOfBooks; j++){
+//                    //For all the type of books available
+//                    for(int k=0; k < totalOfBooks; k++){
+//                        //If this library contains this book
+//                        if(book.containsKey(library.getBookIDs().get(j))){
+//                            //Since two days pass
+//                            totalDaysPassed+=(float) 1/2;
+//                            //If the totalDaysPassed is not 6
+//                            if(!(totalDaysPassed < 6)){
+//                                //We can continue to add scores
+//                                totalPossibleScannedScore+= Integer.parseInt(book.get(i));
+//                            }
+//                        }
+//                    }
+//                }
+//                index++;
+//            }
+//
+//        }
+
+    }
+
+    public void createOutput(String fileName){
+
     }
 }
+
+
+
+
 
 //    //Read in Data
 //    public static void main(String[] args) throws Exception {

@@ -1,22 +1,25 @@
 package GoogleBooks;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 class Library {
-    int numOfBooks=0;
-    int signUpDays=0;
-    int bookPerDays=0;
-    ArrayList<Integer> bookIDs = new ArrayList<Integer>();
+    private int numOfBooks=0;
+    private int signUpDays=0;
+    private int bookPerDays=0;
+
+    private int scannedScore=0; // For the maximum score we can get
+    HashMap<Integer, String> bookObjects = new HashMap<>();
+
 
     public Library() {
 
     }
 
-    public Library(int numOfBooks, int signUpDays, int bookPerDays, ArrayList<Integer> bookIDs) {
+    public Library(int numOfBooks, int signUpDays, int bookPerDays, HashMap<Integer, String> bookObjects) {
         this.numOfBooks = numOfBooks;
         this.signUpDays = signUpDays;
         this.bookPerDays = bookPerDays;
-        this.bookIDs = bookIDs;
+        this.bookObjects = bookObjects;
     }
 
     public int getNumOfBooks() {
@@ -43,11 +46,20 @@ class Library {
         this.bookPerDays = bookPerDays;
     }
 
-    public ArrayList<Integer> getBookIDs() {
-        return bookIDs;
+    public HashMap<Integer, String> getBookObjects() {
+        return bookObjects;
     }
 
-    public void setBookIDs(ArrayList<Integer> bookIDs) {
-        this.bookIDs = bookIDs;
+    //I think we need to track the book and its score
+    public void setBookObjects(HashMap<Integer, String> bookObjects) {
+        this.bookObjects = bookObjects;
+    }
+
+    public int getTotalPossibleScannedScore() {
+        return scannedScore;
+    }
+
+    public void setTotalPossibleScannedScore(int totalPossibleScannedScore) {
+        this.scannedScore = totalPossibleScannedScore;
     }
 }
