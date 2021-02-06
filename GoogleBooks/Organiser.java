@@ -8,20 +8,21 @@ import java.util.*;
 TODO: USE CONSTRAINTS!!!!!!!!!!!!!
 Pen and paper?
 Write very specific requirements
+Debug
 
  */
 public class Organiser {
     //Global variables
-    public static int totalOfBooks = 0;
-    public static int totalOfLibs = 0;
-    public static int totalOfDays = 0;
-    public static ArrayList<Library> libraries = new ArrayList<>();
+    public static int totalNumOfBooks = 0;
+    public static int totalNumOfLibs = 0;
+    public static int totalNumOfDays = 0;
+    public static ArrayList<Library> totalLibraries = new ArrayList<>();
 
     //Hash with booksID, Score
-    public static HashMap<Integer, String> books = new HashMap<>();//Change to class next time
+    public static HashMap<Integer, String> totalPossibleBooks = new HashMap<>();//Change to class next time
 
     //Temporary Variable
-    private HashMap<Integer, String> booksThings = new HashMap<Integer, String>();
+    private HashMap<Integer, String> tempBookObject = new HashMap<Integer, String>();
 
     public void parseInput(String fileName) throws FileNotFoundException {
 
@@ -53,13 +54,13 @@ public class Organiser {
                 for (int i = 0; i < numbers.length; i++) {
                     switch (i) {
                         case 0:
-                            totalOfBooks = Integer.parseInt(numbers[i]);
+                            totalNumOfBooks = Integer.parseInt(numbers[i]);
                             break;
                         case 1:
-                            totalOfLibs = Integer.parseInt(numbers[i]);
+                            totalNumOfLibs = Integer.parseInt(numbers[i]);
                             break;
                         case 2:
-                            totalOfDays = Integer.parseInt(numbers[i]);
+                            totalNumOfDays = Integer.parseInt(numbers[i]);
                             break;
                     }
 
@@ -68,7 +69,7 @@ public class Organiser {
             //Line two 1 2 3 6 5 4
             else if (index == 1) {
                 for (int i = 0; i < numbers.length; i++) {
-                    books.put(i+1, numbers[i]);
+                    totalPossibleBooks.put(i+1, numbers[i]);
                 }
             }
             else {
@@ -90,14 +91,14 @@ public class Organiser {
                     mutex = 1;
                 } else {
                     //Empty bookArray
-                    booksThings = new HashMap<Integer, String>();
+                    tempBookObject = new HashMap<Integer, String>();
 
                     //Line four 0 1 2 3 4
                     for (String number : numbers) {
-                        booksThings.put(Integer.parseInt(number)+1, "");
+                        tempBookObject.put(Integer.parseInt(number)+1, "");
                     }
-                    library.setBookObjects(booksThings);
-                    libraries.add(library);
+                    library.setBookObjects(tempBookObject);
+                    totalLibraries.add(library);
                     //Make a new library
                     library = new Library();
                     mutex = 0;
@@ -110,109 +111,106 @@ public class Organiser {
         }
 
         //Fill in the books in each library
-        //High difficulty
-        for (int i = 0; i < libraries.size(); i++) {
-            Library l = libraries.get(i);
-            for (Map.Entry<Integer, String> b : books.entrySet()) {
-                for (Map.Entry<Integer, String> bi : l.getBookObjects().entrySet()){
-                    if(bi.getKey().equals(b.getKey())){
-                        l.getBookObjects().put(bi.getKey(),b.getValue());
-                        if(i==1){
-                            System.out.println(b);
-                            System.out.println(bi);
-                        }
+        for (Library l : totalLibraries) {
+            for (Map.Entry<Integer, String> b : totalPossibleBooks.entrySet()) {
+                for (Map.Entry<Integer, String> bi : l.getBookObjects().entrySet()) {
+                    if (bi.getKey().equals(b.getKey())) {
+                        l.getBookObjects().put(bi.getKey(), b.getValue());
+                    }
+                }
+            }
+        }
+
+        for (Library l : totalLibraries) {
+            l.setBookObjects(sortBooksInEachLibrary(l.getBookObjects()));
+        }
+
+       // System.out.println("Hello");
+    }//ENDparseInput
+
+
+    //Use to sort all the books in the libraries from biggest to smallest
+    private LinkedHashMap<Integer, String> sortBooksInEachLibrary(HashMap<Integer, String> libraryBooks){
+        //This stores all the values
+        ArrayList<String> tempList = new ArrayList<>();
+        LinkedHashMap<Integer, String> sortedLibraryBooks = new LinkedHashMap<>();;
+
+        //For each book in that library
+        for (Map.Entry<Integer, String> entry : libraryBooks.entrySet()) {
+            //Add the values of the hashmap to an arraylist
+            tempList.add(entry.getValue());
+        }
+
+        //Sort the values in reverse order
+        Collections.sort(tempList, Collections.reverseOrder());
+        //For each of the values in the array list
+        for (String str : tempList) {
+            //For each of the books in that library
+            for (Map.Entry<Integer, String> entry : libraryBooks.entrySet()) {
+                //If we find the entry that corresponds to that sorted value in the arraylist
+                if (entry.getValue().equals(str)) {
+                    //We add that entry to the sortHashmap as it is already sorted
+                    sortedLibraryBooks.put(entry.getKey(), str);
+                }
+            }
+            //System.out.println(sortedLibraryBooks);
+        }
+
+        System.out.println("Didnt work");
+        return sortedLibraryBooks;
+    }//ENDsortBooksInEachLibrary
+
+    //Perform operations
+    public void sort(){
+        int runningScoring; // Use store running total score of books
+        //For all the possible library
+        for(Library l: totalLibraries){
+            runningScoring=0;//Set to zero
+            //For all the books in that library
+            for (Map.Entry<Integer, String> b: l.getBookObjects().entrySet()) {
+                //For each of the possible days we can send a book
+                for (int i = 0; i < totalNumOfDays - l.getSignUpDays(); i++) {
+                    for (int j = 0; j < l.getBookPerDays(); j++) {
+                        //Total up the book scores
+                        runningScoring += Integer.parseInt(b.getValue());
+                        //Add the book score to that library
+                        l.setTotalPossibleScannedScore(runningScoring);
                     }
                 }
             }
         }
 
 
-       // System.out.println("Hello");
-    }
 
-    public void sort(){
 
-        float totalDaysPassed =0; //For the number of days
-        int index=0;
 
-        //        for(int i =0; i < totalOfLibs; i++){
+
+
+
+
+
+
+
+
+
+//
+//        LinkedHashMap<String, String> SortedLibraries = sortBooksInEachLibrary();
+//
+//        System.out.println(SortedLibraries);
+//        System.out.println(SortedLibraries.size());
+//        for(int i =0; i < SortedLibraries.size(); i++){
+//            //HashMap<String, String> NewlyOrdered = SortedLibraries.get(i).bookObjects;
+////            for(int j = 0; j < sortBooksInEachLibrary().size(); j++){
+////
+////            }
+//        }
+
+
+//        for(int i =0; i < totalOfLibs; i++){
 //            for(int j=0; j < totalOfBooks; j++){
 //                if(libraries.get(i).getBookIDs())
 //            }
 //        }
-
-        //For each library in our libraries
-        for(int i =0; i < libraries.size(); i++) {
-            HashMap<Integer, String> libraryBooks = libraries.get(i).bookObjects;
-            LinkedHashMap<String, String> sortedMap = new LinkedHashMap<>();
-            ArrayList<String> list = new ArrayList<>();
-
-            for (Map.Entry<Integer, String> entry : libraryBooks.entrySet()) {
-                list.add(entry.getValue());
-            }
-            //Here
-            Collections.sort(list, Collections.reverseOrder());
-            for (String str : list) {
-                for (Map.Entry<Integer, String> entry : libraryBooks.entrySet()) {
-                    if (entry.getValue().equals(str)) {
-                        sortedMap.put(String.valueOf(entry.getKey()), str);
-                    }
-                }
-            }
-            System.out.println(sortedMap);
-        }
-
-//            Library library = libraries.get(i);
-//            //For all the books in that library
-//            for(int j=0; j < library.getNumOfBooks()-1; j++){
-
-
-
-
-
-
-//                //Map.Entry<Integer, String> temp;
-//                TreeMap<Integer, String> tm = new TreeMap<Integer, String>(library.getBookObjects());
-//                Iterator itr=tm.keySet().iterator();
-////                if(Integer.parseInt(library.getBookObjects().get(j)) < Integer.parseInt(library.getBookObjects().get(j+1))){
-////                    library.getBookObjects().get(j);
-////                }
-
-        
-
-
-//         //For each library in our libraries
-//        for(int i =0; i < libraries.size(); i++){
-//            Library library = libraries.get(i);
-//            //For all the books in that library
-//            for(int j=0; j < library.getNumOfBooks(); j++){
-//            //For all the type of books available
-//                for(int k=0; k < totalOfBooks; k++){
-//                    //Use bubble sort
-//                    //If this library contains this book
-//
-//                }
-//            }
-//        }
-
-
-
-//        //For each library in our libraries
-//        for(int i =0; i < libraries.size(); i++){
-//            Library library = libraries.get(i);
-//            //For all the books in that library
-//            for(int j=0; j < library.numOfBooks; j++){
-//            //For all the type of books available
-//                for(int k=0; k < totalOfBooks; k++){
-//                    //Use bubble sort
-//                    //If this library contains this book
-//                    if(book.containsKey(library.getBookIDs().get(j))){
-//                       if()
-//                    }
-//                }
-//            }
-//        }
-
 
 
 
@@ -243,132 +241,11 @@ public class Organiser {
 //
 //        }
 
-    }
 
+    }//ENDsort
+
+    //Create submission file
     public void createOutput(String fileName){
 
-    }
+    }//ENDcreateOutput
 }
-
-
-
-
-
-//    //Read in Data
-//    public static void main(String[] args) throws Exception {
-//        Library library0 = new Library();
-//        Library library1 = new Library();
-//
-//
-//        // Read dataset
-//        File file = new File(in);
-//        // Read in what file
-//        Scanner scanner = new Scanner(file);
-//
-//        int index = 0;//This will hold the line number
-//        //While there is a next line in the file
-//        while (scanner.hasNextLine()) {
-//            //Hold each line
-//            String line = scanner.nextLine();
-//
-//            //Number of elements in this line
-//            String[] numbers = line.split(" ");
-//
-//            //Empty bookArray
-//            booksNumber = new ArrayList<Integer>();
-//
-////            //Line one 6 2 7
-////            for (int i = 0; i < numbers.length; i++) {
-////                if (i == 0) {
-////                    numOfBooks = Integer.parseInt(numbers[i]);
-////                } else if (i == 1) {
-////                    numOfLibs = Integer.parseInt(numbers[i]);
-////                } else if (i == 2) {
-////                    numOfDays = Integer.parseInt(numbers[i]);
-////                }
-////                System.out.print(Integer.parseInt(numbers[i]) + " ");
-////
-////            }
-////            index++;
-////            System.out.println("");
-//
-//
-//            //For the "words" in the line
-//            for (int i = 0; i < numbers.length; i++) {
-//                //Line one 6 2 7
-//                if (index == 0) {
-//                    if (i == 0) {
-//                        numOfBooks = Integer.parseInt(numbers[i]);
-//                    } else if (i == 1) {
-//                        numOfLibs = Integer.parseInt(numbers[i]);
-//                    } else if (i == 2) {
-//                        numOfDays = Integer.parseInt(numbers[i]);
-//                    }
-//                //Line two 1 2 3 6 5 4
-//                } else if (index == 1) {
-//                    if (i == 0) {
-//                        bookScores.add(Integer.parseInt(numbers[i]));
-//                    } else if (i == 1) {
-//                        bookScores.add(Integer.parseInt(numbers[i]));
-//                    } else if (i == 2) {
-//                        bookScores.add(Integer.parseInt(numbers[i]));
-//                    } else if (i == 3) {
-//                        bookScores.add(Integer.parseInt(numbers[i]));
-//                    } else if (i == 4) {
-//                        bookScores.add(Integer.parseInt(numbers[i]));
-//                    } else if (i == 5) {
-//                        bookScores.add(Integer.parseInt(numbers[i]));
-//                    }
-//                //Line three 5 2 2
-//                } else if (index == 2) {
-//                    if (i == 0) {
-//                        library0.setNumOfBooks(Integer.parseInt(numbers[i]));
-//                    } else if (i == 1) {
-//                        library0.setSignUpDays(Integer.parseInt(numbers[i]));
-//                    } else if (i == 2) {
-//                        library0.setBookPerDays(Integer.parseInt(numbers[i]));
-//                    }
-//                //Line four 0 1 2 3 4
-//                } else if (index == 3) {
-//                    if (i == 0) {
-//                        booksNumber.add(Integer.parseInt(numbers[i]));
-//                    } else if (i == 1) {
-//                        booksNumber.add(Integer.parseInt(numbers[i]));
-//                    } else if (i == 2) {
-//                        booksNumber.add(Integer.parseInt(numbers[i]));
-//                    } else if (i == 3) {
-//                        booksNumber.add(Integer.parseInt(numbers[i]));
-//                    } else if (i == 4) {
-//                        booksNumber.add(Integer.parseInt(numbers[i]));
-//                    }
-//                    library0.setBookIDs(booksNumber);
-//                //Line five 4 3 1
-//                } else if (index == 4) {
-//                    if (i == 0) {
-//                        library1.setNumOfBooks(Integer.parseInt(numbers[i]));
-//                    } else if (i == 1) {
-//                        library1.setSignUpDays(Integer.parseInt(numbers[i]));
-//                    } else if (i == 2) {
-//                        library1.setBookPerDays(Integer.parseInt(numbers[i]));
-//                    }
-//                // Line size 0 2 3 5
-//                } else if(index == 5) {
-//                    if (i == 0) {
-//                        booksNumber.add(Integer.parseInt(numbers[i]));
-//                    } else if (i == 1) {
-//                        booksNumber.add(Integer.parseInt(numbers[i]));
-//                    } else if (i == 2) {
-//                        booksNumber.add(Integer.parseInt(numbers[i]));
-//                    } else if (i == 3) {
-//                        booksNumber.add(Integer.parseInt(numbers[i]));
-//                    }
-//                    library1.setBookIDs(booksNumber);
-//                    }
-//                    //System.out.print(scanner.nextInt());
-//                    System.out.print(Integer.parseInt(numbers[i]) + " ");
-//                }
-//                index++;
-//                System.out.println("");
-//            }
-//    }//END OF CLASS
-//}
