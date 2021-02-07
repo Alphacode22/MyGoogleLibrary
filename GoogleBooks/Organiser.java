@@ -121,6 +121,7 @@ public class Organiser {
             }
         }
 
+        //Sort the book in each of the libraries
         for (Library l : totalLibraries) {
             l.setBookObjects(sortBooksInEachLibrary(l.getBookObjects()));
         }
@@ -160,25 +161,54 @@ public class Organiser {
         return sortedLibraryBooks;
     }//ENDsortBooksInEachLibrary
 
-    //Perform operations
+    //Sort
     public void sort(){
+        for(int i=0; i< totalLibraries.size();i++){
+            totalLibraries.get(i).setScannedScore(calculateTotalScore(totalLibraries.get(i)));
+        }
+
+        for (Library l : totalLibraries) {
+            //l.setScannedScore(calculateTotalScore(l));
+            System.out.println(l.getScannedScore());
+        }
+    }
+
+
+    //Perform calculate total score for each library.
+    private int calculateTotalScore(Library l){
         int runningScoring; // Use store running total score of books
+        int dayLimit=0;
+        int dayCounter =0;
+
         //For all the possible library
-        for(Library l: totalLibraries){
-            runningScoring=0;//Set to zero
-            //For all the books in that library
-            for (Map.Entry<Integer, String> b: l.getBookObjects().entrySet()) {
+        runningScoring=0;//Set to zero
+        dayLimit = totalNumOfDays - l.getSignUpDays();
+        //For all the books in that library
+        for (Iterator<Map.Entry<Integer, String>> iterator = l.getBookObjects().entrySet().iterator(); iterator.hasNext(); ) {
+            for(int i=0; i< l.getBookPerDays(); i++){
+                if(!iterator.hasNext()){
+                    break;
+                }
+
+                Map.Entry<Integer, String> b = iterator.next();
+                //Total up the book scores
+                runningScoring += Integer.parseInt(b.getValue());
+                //Add the book score to that library
+                l.setTotalPossibleScannedScore(runningScoring);
+                //Another day has passed
+
                 //For each of the possible days we can send a book
-                for (int i = 0; i < totalNumOfDays - l.getSignUpDays(); i++) {
-                    for (int j = 0; j < l.getBookPerDays(); j++) {
-                        //Total up the book scores
-                        runningScoring += Integer.parseInt(b.getValue());
-                        //Add the book score to that library
-                        l.setTotalPossibleScannedScore(runningScoring);
-                    }
+                if (dayCounter == dayLimit) {
+                    break;
                 }
             }
+
+            dayCounter++;
         }
+        return runningScoring;
+
+
+
 
 
 

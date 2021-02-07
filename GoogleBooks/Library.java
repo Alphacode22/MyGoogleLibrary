@@ -6,7 +6,6 @@ class Library {
     private int numOfBooks=0;
     private int signUpDays=0;
     private int bookPerDays=0;
-
     private int scannedScore=0; // For the maximum score we can get
     HashMap<Integer, String> bookObjects = new HashMap<>();
 
@@ -15,11 +14,20 @@ class Library {
 
     }
 
-    public Library(int numOfBooks, int signUpDays, int bookPerDays, HashMap<Integer, String> bookObjects) {
+    public Library(int numOfBooks, int signUpDays, int bookPerDays, int scannedScore, HashMap<Integer, String> bookObjects) {
         this.numOfBooks = numOfBooks;
         this.signUpDays = signUpDays;
         this.bookPerDays = bookPerDays;
+        this.scannedScore = scannedScore;
         this.bookObjects = bookObjects;
+    }
+
+    public int getScannedScore() {
+        return scannedScore;
+    }
+
+    public void setScannedScore(int scannedScore) {
+        this.scannedScore = scannedScore;
     }
 
     public int getNumOfBooks() {
