@@ -2,6 +2,8 @@ package GoogleBooks;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 /*
@@ -12,20 +14,25 @@ Debug
 
  */
 public class Organiser {
+    //Modification
+    int addOne = 0; //This is to offset all the books by one
+
     //Global variables
-    public static int totalNumOfBooks = 0;
-    public static int totalNumOfLibs = 0;
-    public static int totalNumOfDays = 0;
-    public static ArrayList<Library> totalLibraries = new ArrayList<>();
+     int totalNumOfBooks = 0;
+     int totalNumOfLibs = 0;
+     int totalNumOfDays = 0;
+     ArrayList<Library> totalLibraries = new ArrayList<>();
+     ArrayList<Library> rankedLibraries = new ArrayList<Library>();
 
     //Hash with booksID, Score
-    public static HashMap<Integer, String> totalPossibleBooks = new HashMap<>();//Change to class next time
+    HashMap<Integer, String> totalPossibleBooks = new HashMap<>();//Change to class next time
 
     //Temporary Variable
-    private HashMap<Integer, String> tempBookObject = new HashMap<Integer, String>();
+    HashMap<Integer, String> tempBookObject = new HashMap<Integer, String>();
 
     public void parseInput(String fileName) throws FileNotFoundException {
 
+        //If we have not set a file name
         if(fileName == null){
             throw new FileNotFoundException("You are missing a file");
         }
@@ -69,7 +76,7 @@ public class Organiser {
             //Line two 1 2 3 6 5 4
             else if (index == 1) {
                 for (int i = 0; i < numbers.length; i++) {
-                    totalPossibleBooks.put(i+1, numbers[i]);
+                    totalPossibleBooks.put(i+addOne, numbers[i]);
                 }
             }
             else {
@@ -95,7 +102,7 @@ public class Organiser {
 
                     //Line four 0 1 2 3 4
                     for (String number : numbers) {
-                        tempBookObject.put(Integer.parseInt(number)+1, "");
+                        tempBookObject.put(Integer.parseInt(number)+addOne, "");
                     }
                     library.setBookObjects(tempBookObject);
                     totalLibraries.add(library);
@@ -106,28 +113,67 @@ public class Organiser {
             }
             index++;
             //System.out.println("");
-
-
         }
+       // System.out.println("Hello");
+    }//ENDparseInput
 
+    //Sort the Library Books
+    public void sort(){
         //Fill in the books in each library
-        for (Library l : totalLibraries) {
-            for (Map.Entry<Integer, String> b : totalPossibleBooks.entrySet()) {
-                for (Map.Entry<Integer, String> bi : l.getBookObjects().entrySet()) {
-                    if (bi.getKey().equals(b.getKey())) {
-                        l.getBookObjects().put(bi.getKey(), b.getValue());
-                    }
-                }
-            }
+        for(Library l: totalLibraries){
+            fillInAllTheBooks(l);
+            //System.out.println(l.getBookObjects());
         }
+
+        System.out.println();
 
         //Sort the book in each of the libraries
         for (Library l : totalLibraries) {
             l.setBookObjects(sortBooksInEachLibrary(l.getBookObjects()));
+            //System.out.println(l.getBookObjects());
         }
 
-       // System.out.println("Hello");
-    }//ENDparseInput
+        System.out.println();
+
+        //Perform calculate total score for each library.
+        for (Library l : totalLibraries) {
+            l.setScannedScore(calculateTotalScore(l));
+            System.out.println(l.getScannedScore());
+        }
+
+        System.out.println();
+
+        //Rank each library by total score
+        for(Library l : totalLibraries){
+            rankEachLibrary(l);
+        }
+        rankedLibraries = totalLibraries;
+
+        for (Library rl : rankedLibraries) {//zero
+            //System.out.println("hio");
+            System.out.println(rl.getScannedScore());
+        }
+
+//        for(int i=0; i< totalLibraries.size();i++){
+//            totalLibraries.get(i).setScannedScore(calculateTotalScore(totalLibraries.get(i)));
+//        }
+//
+//        for (Library l : totalLibraries) {
+//            //l.setScannedScore(calculateTotalScore(l));
+//            System.out.println(l.getScannedScore());
+//        }
+    }//ENDsort()
+
+    //Fill in all the books
+    private void fillInAllTheBooks(Library l){
+        for (Map.Entry<Integer, String> b : totalPossibleBooks.entrySet()) {
+            for (Map.Entry<Integer, String> bi : l.getBookObjects().entrySet()) {
+                if (bi.getKey().equals(b.getKey())) {
+                    l.getBookObjects().put(bi.getKey(), b.getValue());
+                }
+            }
+        }
+    }//ENDfillInAllTheBooks
 
 
     //Use to sort all the books in the libraries from biggest to smallest
@@ -157,125 +203,88 @@ public class Organiser {
             //System.out.println(sortedLibraryBooks);
         }
 
-        System.out.println("Didnt work");
+        //System.out.println("Didnt work");
         return sortedLibraryBooks;
     }//ENDsortBooksInEachLibrary
-
-    //Sort
-    public void sort(){
-        for(int i=0; i< totalLibraries.size();i++){
-            totalLibraries.get(i).setScannedScore(calculateTotalScore(totalLibraries.get(i)));
-        }
-
-        for (Library l : totalLibraries) {
-            //l.setScannedScore(calculateTotalScore(l));
-            System.out.println(l.getScannedScore());
-        }
-    }
-
 
     //Perform calculate total score for each library.
     private int calculateTotalScore(Library l){
         int runningScoring; // Use store running total score of books
-        int dayLimit=0;
-        int dayCounter =0;
+        int dayLimit=0; //Use to store day limit
+        int dayCounter =0; // Counts the days that pass
 
         //For all the possible library
         runningScoring=0;//Set to zero
+        //Day limit remainder of the week after we finish the sign up days
         dayLimit = totalNumOfDays - l.getSignUpDays();
+
+        boolean isFinished=false;
         //For all the books in that library
         for (Iterator<Map.Entry<Integer, String>> iterator = l.getBookObjects().entrySet().iterator(); iterator.hasNext(); ) {
+            //For each book we can send in a day
             for(int i=0; i< l.getBookPerDays(); i++){
-                if(!iterator.hasNext()){
-                    break;
-                }
+                //If there is no next node
+                //if(!isFinished){
+                    if(!iterator.hasNext()){
+                        //isFinished = true;
+                       // break;
+                        return runningScoring;
+                    }
 
-                Map.Entry<Integer, String> b = iterator.next();
-                //Total up the book scores
-                runningScoring += Integer.parseInt(b.getValue());
-                //Add the book score to that library
-                l.setTotalPossibleScannedScore(runningScoring);
-                //Another day has passed
+                    //For each of the possible days we can send a book
+                    if (dayCounter >= dayLimit) {
+                        //isFinished = true;
+                        //break;
+                        return runningScoring;
+                    }
 
-                //For each of the possible days we can send a book
-                if (dayCounter == dayLimit) {
-                    break;
-                }
+                    //Get the next entry
+                    Map.Entry<Integer, String> b = iterator.next();
+                    //Total up the book scores
+                    runningScoring += Integer.parseInt(b.getValue());
+                    //Add the book score to that library
+                    l.setTotalPossibleScannedScore(runningScoring);
+                    //Another day has passed
+                //}
             }
-
-            dayCounter++;
+            //Next day
+            ++dayCounter;
         }
         return runningScoring;
+    }//ENDcalculateTotalScore
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//        LinkedHashMap<String, String> SortedLibraries = sortBooksInEachLibrary();
-//
-//        System.out.println(SortedLibraries);
-//        System.out.println(SortedLibraries.size());
-//        for(int i =0; i < SortedLibraries.size(); i++){
-//            //HashMap<String, String> NewlyOrdered = SortedLibraries.get(i).bookObjects;
-////            for(int j = 0; j < sortBooksInEachLibrary().size(); j++){
-////
-////            }
-//        }
-
-
-//        for(int i =0; i < totalOfLibs; i++){
-//            for(int j=0; j < totalOfBooks; j++){
-//                if(libraries.get(i).getBookIDs())
-//            }
-//        }
-
-
-
-//        //For all the library we have
-//        for(int h =0; h < libraries.size(); h++){
-//            for(int i =0; i < index; i++){
-//                Library library = libraries.get(i);
-//                totalDaysPassed += library.signUpDays;
-//
-//                //For all the books in that library
-//                for(int j=0; j < library.numOfBooks; j++){
-//                    //For all the type of books available
-//                    for(int k=0; k < totalOfBooks; k++){
-//                        //If this library contains this book
-//                        if(book.containsKey(library.getBookIDs().get(j))){
-//                            //Since two days pass
-//                            totalDaysPassed+=(float) 1/2;
-//                            //If the totalDaysPassed is not 6
-//                            if(!(totalDaysPassed < 6)){
-//                                //We can continue to add scores
-//                                totalPossibleScannedScore+= Integer.parseInt(book.get(i));
-//                            }
-//                        }
-//                    }
-//                }
-//                index++;
-//            }
-//
-//        }
-
-
-    }//ENDsort
+    //Rank Each Library
+    private void rankEachLibrary(Library l) {
+        Library tempLibrary;
+        for (int j = 0; j  < totalLibraries.size()-1; j++) {
+            Library tl = totalLibraries.get(j);
+            if(l.getScannedScore() > tl.getScannedScore()){
+                tempLibrary = totalLibraries.get(j) ;
+                //totalLibraries.set(j , l);
+                //totalLibraries.set(j , l);
+                totalLibraries.set(j , totalLibraries.get(j+1));
+                //totalLibraries.add(tempLibrary);
+                totalLibraries.set(j+1 , tempLibrary);
+            }
+        }
+    }//ENDrankEachLibrary
 
     //Create submission file
-    public void createOutput(String fileName){
+    public void createOutput(String fileName) throws IOException {
+        if(fileName == null){
+            throw new IOException("You are missing a file");
+        }
+
+        File file = new File(fileName);
+
+        // Read in what file
+        FileWriter myWriter = new FileWriter(file);
+        myWriter.write(totalLibraries +"\n");
+        for(Library rl : rankedLibraries){
+
+        }
+
+
 
     }//ENDcreateOutput
-}
+}//ENDCLASS
