@@ -13,9 +13,14 @@ Write very specific requirements
 Debug
 
  */
+//enum NextLine {
+//    specifications,
+//    moreBooks,
+//}
+
 public class Organiser {
     //Modification
-    int addOne = 0; //This is to offset all the books by one
+    int addOne = 0; //This is to offset all the books by one //First book is 0 or 1?
 
     //Global variables
      int totalNumOfBooks = 0;
@@ -95,7 +100,7 @@ public class Organiser {
                                 break;
                         }
                     }
-                    mutex = 1;
+                    mutex = 1;//Next line are books
                 } else {
                     //Empty bookArray
                     tempBookObject = new HashMap<Integer, String>();
@@ -108,18 +113,17 @@ public class Organiser {
                     totalLibraries.add(library);
                     //Make a new library
                     library = new Library();
-                    mutex = 0;
+                    mutex = 0;// Next line are specifications
                 }
             }
-            index++;
+            index++;//Next line
             //System.out.println("");
         }
-       // System.out.println("Hello");
     }//ENDparseInput
 
     //Sort the Library Books
     public void sort(){
-        //Fill in the books in each library
+        //Fill in the books in each library with scores
         for(Library l: totalLibraries){
             fillInAllTheBooks(l);
             //System.out.println(l.getBookObjects());
@@ -166,9 +170,13 @@ public class Organiser {
 
     //Fill in all the books
     private void fillInAllTheBooks(Library l){
+        //For all the possible books
         for (Map.Entry<Integer, String> b : totalPossibleBooks.entrySet()) {
+            //For each of the books in our library
             for (Map.Entry<Integer, String> bi : l.getBookObjects().entrySet()) {
+                //If that book match the ID of one of the possible books
                 if (bi.getKey().equals(b.getKey())) {
+                    //.. fill in the score by using the possible book score
                     l.getBookObjects().put(bi.getKey(), b.getValue());
                 }
             }
@@ -178,8 +186,10 @@ public class Organiser {
 
     //Use to sort all the books in the libraries from biggest to smallest
     private LinkedHashMap<Integer, String> sortBooksInEachLibrary(HashMap<Integer, String> libraryBooks){
-        //This stores all the values
+        //This stores all the values of the books in the library
         ArrayList<String> tempList = new ArrayList<>();
+
+        //This stores all the values of the books sorted in order of highest
         LinkedHashMap<Integer, String> sortedLibraryBooks = new LinkedHashMap<>();;
 
         //For each book in that library
@@ -218,23 +228,17 @@ public class Organiser {
         //Day limit remainder of the week after we finish the sign up days
         dayLimit = totalNumOfDays - l.getSignUpDays();
 
-        boolean isFinished=false;
         //For all the books in that library
         for (Iterator<Map.Entry<Integer, String>> iterator = l.getBookObjects().entrySet().iterator(); iterator.hasNext(); ) {
             //For each book we can send in a day
             for(int i=0; i< l.getBookPerDays(); i++){
                 //If there is no next node
-                //if(!isFinished){
                     if(!iterator.hasNext()){
-                        //isFinished = true;
-                       // break;
                         return runningScoring;
                     }
 
                     //For each of the possible days we can send a book
                     if (dayCounter >= dayLimit) {
-                        //isFinished = true;
-                        //break;
                         return runningScoring;
                     }
 
@@ -244,10 +248,8 @@ public class Organiser {
                     runningScoring += Integer.parseInt(b.getValue());
                     //Add the book score to that library
                     l.setTotalPossibleScannedScore(runningScoring);
-                    //Another day has passed
-                //}
             }
-            //Next day
+            //Another day has passed
             ++dayCounter;
         }
         return runningScoring;
@@ -255,16 +257,19 @@ public class Organiser {
 
     //Rank Each Library
     private void rankEachLibrary(Library l) {
-        Library tempLibrary;
-        for (int j = 0; j  < totalLibraries.size()-1; j++) {
+        Library tempLibrary; //For swap
+        boolean isNotFinished=true;//Are we finished sorting?
+        //For all the books in the library
+        for (int j = 0; j  < totalLibraries.size()-1 && isNotFinished; j++) {
+            isNotFinished = false;
             Library tl = totalLibraries.get(j);
+            //If the library's score is less than the values of the other libraries, move back
             if(l.getScannedScore() > tl.getScannedScore()){
                 tempLibrary = totalLibraries.get(j) ;
-                //totalLibraries.set(j , l);
-                //totalLibraries.set(j , l);
                 totalLibraries.set(j , totalLibraries.get(j+1));
                 //totalLibraries.add(tempLibrary);
                 totalLibraries.set(j+1 , tempLibrary);
+                isNotFinished = true;
             }
         }
     }//ENDrankEachLibrary
